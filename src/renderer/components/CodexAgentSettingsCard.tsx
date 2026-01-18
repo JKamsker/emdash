@@ -10,10 +10,8 @@ const CodexAgentSettingsCard: React.FC = () => {
       try {
         const result = await window.electronAPI.getSettings();
         if (result.success && result.settings) {
-          const legacyUseYolo = Boolean((result.settings as any).agents?.codex?.useYolo ?? false);
           const autoApproveFlag =
-            result.settings.agents?.providerOverrides?.codex?.autoApproveFlag ??
-            (legacyUseYolo ? '--yolo' : '--full-auto');
+            result.settings.agents?.providerOverrides?.codex?.autoApproveFlag ?? '--full-auto';
           setUseYolo(autoApproveFlag === '--yolo');
         }
       } catch (error) {

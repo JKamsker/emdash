@@ -343,19 +343,6 @@ function normalizeSettings(input: AppSettings): AppSettings {
       ? agents.providerOverrides
       : {};
 
-  const legacyCodex = agents?.codex || {};
-  const legacyCodexFlag =
-    legacyCodex && typeof legacyCodex === 'object' && legacyCodex.useYolo === true
-      ? '--yolo'
-      : '--full-auto';
-
-  const codexOverride =
-    overrides?.codex && typeof overrides.codex === 'object' ? overrides.codex : {};
-  const codexAutoApproveFlagRaw =
-    typeof codexOverride.autoApproveFlag === 'string' && codexOverride.autoApproveFlag.trim()
-      ? codexOverride.autoApproveFlag.trim()
-      : legacyCodexFlag;
-
   const providerOverrides: Partial<Record<ProviderId, AgentProviderOverrideSettings>> = {};
   for (const [providerId, providerOverride] of Object.entries(overrides)) {
     if (!isValidProviderId(providerId)) continue;
@@ -369,7 +356,9 @@ function normalizeSettings(input: AppSettings): AppSettings {
     providerOverrides[providerId as ProviderId] = { autoApproveFlag };
   }
 
-  providerOverrides.codex = { autoApproveFlag: codexAutoApproveFlagRaw };
+  providerOverrides.codex ??= {
+    autoApproveFlag: DEFAULT_SETTINGS.agents!.providerOverrides!.codex!.autoApproveFlag,
+  };
 
   out.agents = {
     providerOverrides,
