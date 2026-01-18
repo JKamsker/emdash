@@ -10,7 +10,11 @@ const CodexAgentSettingsCard: React.FC = () => {
       try {
         const result = await window.electronAPI.getSettings();
         if (result.success && result.settings) {
-          setUseYolo(Boolean(result.settings.agents?.codex?.useYolo ?? false));
+          const legacyUseYolo = Boolean((result.settings as any).agents?.codex?.useYolo ?? false);
+          const autoApproveFlag =
+            result.settings.agents?.providerOverrides?.codex?.autoApproveFlag ??
+            (legacyUseYolo ? '--yolo' : '--full-auto');
+          setUseYolo(autoApproveFlag === '--yolo');
         }
       } catch (error) {
         console.error('Failed to load Codex agent settings:', error);
@@ -23,7 +27,9 @@ const CodexAgentSettingsCard: React.FC = () => {
   const updateUseYolo = async (next: boolean) => {
     setUseYolo(next);
     try {
-      await window.electronAPI.updateSettings({ agents: { codex: { useYolo: next } } });
+      await window.electronAPI.updateSettings({
+        agents: { providerOverrides: { codex: { autoApproveFlag: next ? '--yolo' : '--full-auto' } } },
+      });
     } catch (error) {
       console.error('Failed to update Codex agent settings:', error);
     }

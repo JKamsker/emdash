@@ -8,7 +8,11 @@ import { log } from '../lib/logger';
 import { PROVIDERS } from '@shared/providers/registry';
 import { errorTracking } from '../errorTracking';
 import { getAppSettings } from '../settings';
-import { buildProviderCliArgs, detectProviderFromShellCommand } from './providerCli';
+import {
+  buildProviderCliArgs,
+  detectProviderFromShellCommand,
+  resolveProviderAutoApproveFlag,
+} from './providerCli';
 
 type PtyRecord = {
   id: string;
@@ -208,8 +212,7 @@ export async function startPty(options: {
 
     if (provider) {
       const appSettings = getAppSettings();
-      const autoApproveFlagOverride =
-        provider.id === 'codex' && appSettings.agents?.codex?.useYolo ? '--yolo' : undefined;
+      const resolvedAutoApproveFlag = resolveProviderAutoApproveFlag(provider, appSettings);
 
       if (process.platform === 'win32') {
         // On Windows, spawn the provider CLI directly with args.
@@ -219,7 +222,7 @@ export async function startPty(options: {
         args.push(
           ...buildProviderCliArgs(provider, {
             autoApprove,
-            autoApproveFlagOverride,
+            autoApproveFlagOverride: resolvedAutoApproveFlag,
             initialPrompt,
             skipResume,
           })
@@ -229,7 +232,7 @@ export async function startPty(options: {
         // then exec back into an interactive login shell.
         const cliArgs = buildProviderCliArgs(provider, {
           autoApprove,
-          autoApproveFlagOverride,
+          autoApproveFlagOverride: resolvedAutoApproveFlag,
           initialPrompt,
           skipResume,
         });

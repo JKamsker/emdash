@@ -103,8 +103,10 @@ declare global {
             autoRightSidebarBehavior?: boolean;
           };
           agents?: {
-            codex?: {
-              useYolo?: boolean;
+            providerOverrides?: {
+              codex?: {
+                autoApproveFlag?: string;
+              };
             };
           };
         };
@@ -168,8 +170,10 @@ declare global {
             autoRightSidebarBehavior?: boolean;
           };
           agents?: {
-            codex?: {
-              useYolo?: boolean;
+            providerOverrides?: {
+              codex?: {
+                autoApproveFlag?: string;
+              };
             };
           };
         }>
@@ -232,8 +236,10 @@ declare global {
             autoRightSidebarBehavior?: boolean;
           };
           agents?: {
-            codex?: {
-              useYolo?: boolean;
+            providerOverrides?: {
+              codex?: {
+                autoApproveFlag?: string;
+              };
             };
           };
         };

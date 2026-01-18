@@ -1,5 +1,6 @@
 import path from 'path';
 import { PROVIDERS, type ProviderDefinition } from '@shared/providers/registry';
+import type { AppSettings } from '../settings';
 
 export function detectProviderFromShellCommand(shellCommand: string | undefined): ProviderDefinition | undefined {
   if (!shellCommand) return undefined;
@@ -44,4 +45,12 @@ export function buildProviderCliArgs(
   }
 
   return cliArgs;
+}
+
+export function resolveProviderAutoApproveFlag(
+  provider: ProviderDefinition,
+  settings: AppSettings | undefined
+): string | undefined {
+  const override = settings?.agents?.providerOverrides?.[provider.id]?.autoApproveFlag;
+  return override ?? provider.autoApproveFlag;
 }

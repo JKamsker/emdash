@@ -36,10 +36,12 @@ export interface InterfaceSettings {
   autoRightSidebarBehavior?: boolean;
 }
 
+export interface AgentProviderOverrideSettings {
+  autoApproveFlag?: string;
+}
+
 export interface AgentsSettings {
-  codex?: {
-    useYolo: boolean;
-  };
+  providerOverrides?: Partial<Record<ProviderId, AgentProviderOverrideSettings>>;
 }
 
 export interface AppSettings {
@@ -119,8 +121,10 @@ const DEFAULT_SETTINGS: AppSettings = {
     autoRightSidebarBehavior: false,
   },
   agents: {
-    codex: {
-      useYolo: false,
+    providerOverrides: {
+      codex: {
+        autoApproveFlag: '--full-auto',
+      },
     },
   },
 };
@@ -213,9 +217,7 @@ function normalizeSettings(input: AppSettings): AppSettings {
       },
     },
     agents: {
-      codex: {
-        useYolo: DEFAULT_SETTINGS.agents!.codex!.useYolo,
-      },
+      providerOverrides: {},
     },
   };
 
@@ -336,11 +338,41 @@ function normalizeSettings(input: AppSettings): AppSettings {
 
   // Agents
   const agents = (input as any)?.agents || {};
-  const codex = agents?.codex || {};
+  const overrides =
+    agents?.providerOverrides && typeof agents.providerOverrides === 'object'
+      ? agents.providerOverrides
+      : {};
+
+  const legacyCodex = agents?.codex || {};
+  const legacyCodexFlag =
+    legacyCodex && typeof legacyCodex === 'object' && legacyCodex.useYolo === true
+      ? '--yolo'
+      : '--full-auto';
+
+  const codexOverride =
+    overrides?.codex && typeof overrides.codex === 'object' ? overrides.codex : {};
+  const codexAutoApproveFlagRaw =
+    typeof codexOverride.autoApproveFlag === 'string' && codexOverride.autoApproveFlag.trim()
+      ? codexOverride.autoApproveFlag.trim()
+      : legacyCodexFlag;
+
+  const providerOverrides: Partial<Record<ProviderId, AgentProviderOverrideSettings>> = {};
+  for (const [providerId, providerOverride] of Object.entries(overrides)) {
+    if (!isValidProviderId(providerId)) continue;
+    if (!providerOverride || typeof providerOverride !== 'object') continue;
+
+    const autoApproveFlag =
+      typeof (providerOverride as any).autoApproveFlag === 'string'
+        ? String((providerOverride as any).autoApproveFlag).trim()
+        : undefined;
+    if (!autoApproveFlag) continue;
+    providerOverrides[providerId as ProviderId] = { autoApproveFlag };
+  }
+
+  providerOverrides.codex = { autoApproveFlag: codexAutoApproveFlagRaw };
+
   out.agents = {
-    codex: {
-      useYolo: Boolean(codex?.useYolo ?? DEFAULT_SETTINGS.agents!.codex!.useYolo),
-    },
+    providerOverrides,
   };
 
   return out;
