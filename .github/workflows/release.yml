@@ -226,7 +226,7 @@ jobs:
 
   release-mac:
     # Run for tagged pushes (normal release) and for manual runs (dry run or ad-hoc release)
-    if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
+    if: (startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch') && secrets.CERTIFICATE_P12 != '' && secrets.CERTIFICATE_PASSWORD != ''
     runs-on: macos-latest
     permissions:
       contents: write
