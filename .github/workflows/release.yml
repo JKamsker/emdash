@@ -4,6 +4,8 @@ on:
   push:
     tags:
       - 'v*'
+    branches:
+      - 'feat/windows-installer'
   workflow_dispatch:
     inputs:
       arch:
@@ -29,6 +31,10 @@ jobs:
           # Normalize dry_run from workflow_dispatch inputs (string: true/false)
           DRY=${{ inputs.dry_run || '' }}
           if [ -z "$DRY" ]; then DRY=${{ github.event.inputs.dry_run || '' }}; fi
+          # For branch pushes, always do a dry run to avoid creating "releases" for branch names.
+          if [ "${GITHUB_EVENT_NAME:-}" = "push" ] && [ "${GITHUB_REF_TYPE:-}" = "branch" ]; then
+            DRY=true
+          fi
           DRY=$(printf "%s" "$DRY" | tr '[:upper:]' '[:lower:]')
           case "$DRY" in
             true|1|yes) DRY=true ;;
@@ -537,6 +543,10 @@ jobs:
           set -euo pipefail
           DRY=${{ inputs.dry_run || '' }}
           if [ -z "$DRY" ]; then DRY=${{ github.event.inputs.dry_run || '' }}; fi
+          # For branch pushes, always do a dry run to avoid creating "releases" for branch names.
+          if [ "${GITHUB_EVENT_NAME:-}" = "push" ] && [ "${GITHUB_REF_TYPE:-}" = "branch" ]; then
+            DRY=true
+          fi
           DRY=$(printf "%s" "$DRY" | tr '[:upper:]' '[:lower:]')
           case "$DRY" in
             true|1|yes) DRY=true ;;
