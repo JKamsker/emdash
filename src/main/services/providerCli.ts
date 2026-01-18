@@ -15,11 +15,12 @@ export function buildProviderCliArgs(
   provider: ProviderDefinition,
   options: {
     autoApprove?: boolean;
+    autoApproveFlagOverride?: string;
     initialPrompt?: string;
     skipResume?: boolean;
   }
 ): string[] {
-  const { autoApprove, initialPrompt, skipResume } = options;
+  const { autoApprove, autoApproveFlagOverride, initialPrompt, skipResume } = options;
   const cliArgs: string[] = [];
 
   if (provider.resumeFlag && !skipResume) {
@@ -30,8 +31,9 @@ export function buildProviderCliArgs(
     cliArgs.push(...provider.defaultArgs);
   }
 
-  if (autoApprove && provider.autoApproveFlag) {
-    cliArgs.push(provider.autoApproveFlag);
+  const autoApproveFlag = autoApproveFlagOverride ?? provider.autoApproveFlag;
+  if (autoApprove && autoApproveFlag) {
+    cliArgs.push(autoApproveFlag);
   }
 
   if (provider.initialPromptFlag !== undefined && initialPrompt?.trim()) {
@@ -43,4 +45,3 @@ export function buildProviderCliArgs(
 
   return cliArgs;
 }
-

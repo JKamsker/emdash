@@ -102,6 +102,11 @@ declare global {
           interface?: {
             autoRightSidebarBehavior?: boolean;
           };
+          agents?: {
+            codex?: {
+              useYolo?: boolean;
+            };
+          };
         };
         error?: string;
       }>;
@@ -162,6 +167,11 @@ declare global {
           interface?: {
             autoRightSidebarBehavior?: boolean;
           };
+          agents?: {
+            codex?: {
+              useYolo?: boolean;
+            };
+          };
         }>
       ) => Promise<{
         success: boolean;
@@ -220,6 +230,11 @@ declare global {
           };
           interface?: {
             autoRightSidebarBehavior?: boolean;
+          };
+          agents?: {
+            codex?: {
+              useYolo?: boolean;
+            };
           };
         };
         error?: string;

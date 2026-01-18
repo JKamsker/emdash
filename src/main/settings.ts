@@ -36,6 +36,12 @@ export interface InterfaceSettings {
   autoRightSidebarBehavior?: boolean;
 }
 
+export interface AgentsSettings {
+  codex?: {
+    useYolo: boolean;
+  };
+}
+
 export interface AppSettings {
   repository: RepositorySettings;
   projectPrep: {
@@ -65,6 +71,7 @@ export interface AppSettings {
   };
   keyboard?: KeyboardSettings;
   interface?: InterfaceSettings;
+  agents?: AgentsSettings;
 }
 
 const DEFAULT_SETTINGS: AppSettings = {
@@ -110,6 +117,11 @@ const DEFAULT_SETTINGS: AppSettings = {
   },
   interface: {
     autoRightSidebarBehavior: false,
+  },
+  agents: {
+    codex: {
+      useYolo: false,
+    },
   },
 };
 
@@ -198,6 +210,11 @@ function normalizeSettings(input: AppSettings): AppSettings {
       context7: {
         enabled: DEFAULT_SETTINGS.mcp!.context7!.enabled,
         installHintsDismissed: {},
+      },
+    },
+    agents: {
+      codex: {
+        useYolo: DEFAULT_SETTINGS.agents!.codex!.useYolo,
       },
     },
   };
@@ -315,6 +332,15 @@ function normalizeSettings(input: AppSettings): AppSettings {
     autoRightSidebarBehavior: Boolean(
       iface?.autoRightSidebarBehavior ?? DEFAULT_SETTINGS.interface!.autoRightSidebarBehavior
     ),
+  };
+
+  // Agents
+  const agents = (input as any)?.agents || {};
+  const codex = agents?.codex || {};
+  out.agents = {
+    codex: {
+      useYolo: Boolean(codex?.useYolo ?? DEFAULT_SETTINGS.agents!.codex!.useYolo),
+    },
   };
 
   return out;

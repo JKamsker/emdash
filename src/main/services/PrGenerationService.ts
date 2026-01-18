@@ -3,6 +3,7 @@ import { extname } from 'node:path';
 import { promisify } from 'util';
 import { log } from '../lib/logger';
 import { getProvider, PROVIDER_IDS, type ProviderId } from '../../shared/providers/registry';
+import { getAppSettings } from '../settings';
 
 const execAsync = promisify(exec);
 
@@ -349,9 +350,12 @@ export class PrGenerationService {
       if (provider.defaultArgs?.length) {
         args.push(...provider.defaultArgs);
       }
-      if (provider.autoApproveFlag) {
-        args.push(provider.autoApproveFlag);
-      }
+      const appSettings = getAppSettings();
+      const autoApproveFlag =
+        provider.id === 'codex' && appSettings.agents?.codex?.useYolo
+          ? '--yolo'
+          : provider.autoApproveFlag;
+      if (autoApproveFlag) args.push(autoApproveFlag);
 
       // Handle prompt: some providers accept it as a flag, others via stdin
       let promptViaStdin = true;

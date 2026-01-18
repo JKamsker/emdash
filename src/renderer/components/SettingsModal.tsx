@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { Button } from './ui/button';
 import { Spinner } from './ui/spinner';
-import { X, Settings2, Cable, RefreshCw, GitBranch, Puzzle, PanelLeft } from 'lucide-react';
+import { X, Settings2, Cable, RefreshCw, GitBranch, Puzzle, PanelLeft, Bot } from 'lucide-react';
 import { UpdateCard } from './UpdateCard';
 import IntegrationsCard from './IntegrationsCard';
 import CliProvidersList, { BASE_CLI_PROVIDERS } from './CliProvidersList';
@@ -18,6 +18,7 @@ import Context7SettingsCard from './Context7SettingsCard';
 import DefaultProviderSettingsCard from './DefaultProviderSettingsCard';
 import TaskSettingsCard from './TaskSettingsCard';
 import KeyboardSettingsCard from './KeyboardSettingsCard';
+import AgentsSettingsCard from './AgentsSettingsCard';
 import { CliProviderStatus } from '../types/connections';
 import { Separator } from './ui/separator';
 
@@ -77,7 +78,7 @@ interface SettingsModalProps {
   onClose: () => void;
 }
 
-type SettingsTab = 'general' | 'interface' | 'repository' | 'connections' | 'mcp';
+type SettingsTab = 'general' | 'agents' | 'interface' | 'repository' | 'connections' | 'mcp';
 
 interface SettingsSection {
   title: string;
@@ -86,7 +87,7 @@ interface SettingsSection {
   render?: () => React.ReactNode;
 }
 
-const ORDERED_TABS: SettingsTab[] = ['general', 'interface', 'repository', 'mcp', 'connections'];
+const ORDERED_TABS: SettingsTab[] = ['general', 'agents', 'interface', 'repository', 'mcp', 'connections'];
 
 const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
   const [activeTab, setActiveTab] = useState<SettingsTab>('general');
@@ -213,6 +214,13 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
           },
         ],
       },
+      agents: {
+        icon: Bot,
+        label: 'Agents',
+        title: 'Agents',
+        description: '',
+        sections: [{ title: 'Agent settings', render: () => <AgentsSettingsCard /> }],
+      },
       interface: {
         icon: PanelLeft,
         label: 'Interface',
@@ -281,7 +289,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
     }
 
     return (
-      <div className="flex flex-col gap-6">
+      <div className="flex w-full flex-col gap-6">
         {sections.map((section: SettingsSection, index) => {
           let renderedContent: React.ReactNode = null;
           if (typeof section.render === 'function') {

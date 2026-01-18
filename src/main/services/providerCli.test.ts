@@ -19,7 +19,16 @@ describe('providerCli', () => {
     const provider = getProvider('codex');
     expect(provider).toBeTruthy();
     const args = buildProviderCliArgs(provider!, { autoApprove: true });
+    expect(args).toContain('--full-auto');
+  });
+
+  it('supports overriding the auto-approve flag', () => {
+    const provider = getProvider('codex');
+    expect(provider).toBeTruthy();
+
+    const args = buildProviderCliArgs(provider!, { autoApprove: true, autoApproveFlagOverride: '--yolo' });
     expect(args).toContain('--yolo');
+    expect(args).not.toContain('--full-auto');
   });
 
   it('includes resume flag unless skipped', () => {
@@ -34,4 +43,3 @@ describe('providerCli', () => {
     expect(skipped).not.toContain('-r');
   });
 });
-
