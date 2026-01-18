@@ -7,7 +7,12 @@ import type { IPty } from 'node-pty';
 import { log } from '../lib/logger';
 import { PROVIDERS } from '@shared/providers/registry';
 import { errorTracking } from '../errorTracking';
-import { buildProviderCliArgs, detectProviderFromShellCommand } from './providerCli';
+import { getAppSettings } from '../settings';
+import {
+  buildProviderCliArgs,
+  detectProviderFromShellCommand,
+  resolveProviderAutoApproveFlag,
+} from './providerCli';
 
 type PtyRecord = {
   id: string;
@@ -206,6 +211,9 @@ export async function startPty(options: {
     const provider = detectProviderFromShellCommand(useShell);
 
     if (provider) {
+      const appSettings = getAppSettings();
+      const resolvedAutoApproveFlag = resolveProviderAutoApproveFlag(provider, appSettings);
+
       if (process.platform === 'win32') {
         // On Windows, spawn the provider CLI directly with args.
         const cliCommand = provider.cli || String(useShell);
@@ -214,6 +222,7 @@ export async function startPty(options: {
         args.push(
           ...buildProviderCliArgs(provider, {
             autoApprove,
+            autoApproveFlagOverride: resolvedAutoApproveFlag,
             initialPrompt,
             skipResume,
           })
@@ -221,7 +230,12 @@ export async function startPty(options: {
       } else {
         // On POSIX shells, spawn the user's shell and run the provider via `-c`,
         // then exec back into an interactive login shell.
-        const cliArgs = buildProviderCliArgs(provider, { autoApprove, initialPrompt, skipResume });
+        const cliArgs = buildProviderCliArgs(provider, {
+          autoApprove,
+          autoApproveFlagOverride: resolvedAutoApproveFlag,
+          initialPrompt,
+          skipResume,
+        });
         const cliCommand = provider.cli || String(useShell);
         const resolvedCliPath = resolveCliPath(cliCommand);
         const finalCommand = resolvedCliPath || cliCommand;

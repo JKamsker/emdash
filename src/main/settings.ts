@@ -36,6 +36,14 @@ export interface InterfaceSettings {
   autoRightSidebarBehavior?: boolean;
 }
 
+export interface AgentProviderOverrideSettings {
+  autoApproveFlag?: string;
+}
+
+export interface AgentsSettings {
+  providerOverrides?: Partial<Record<ProviderId, AgentProviderOverrideSettings>>;
+}
+
 export interface AppSettings {
   repository: RepositorySettings;
   projectPrep: {
@@ -65,6 +73,7 @@ export interface AppSettings {
   };
   keyboard?: KeyboardSettings;
   interface?: InterfaceSettings;
+  agents?: AgentsSettings;
 }
 
 const DEFAULT_SETTINGS: AppSettings = {
@@ -110,6 +119,13 @@ const DEFAULT_SETTINGS: AppSettings = {
   },
   interface: {
     autoRightSidebarBehavior: false,
+  },
+  agents: {
+    providerOverrides: {
+      codex: {
+        autoApproveFlag: '--full-auto',
+      },
+    },
   },
 };
 
@@ -199,6 +215,9 @@ function normalizeSettings(input: AppSettings): AppSettings {
         enabled: DEFAULT_SETTINGS.mcp!.context7!.enabled,
         installHintsDismissed: {},
       },
+    },
+    agents: {
+      providerOverrides: {},
     },
   };
 
@@ -315,6 +334,34 @@ function normalizeSettings(input: AppSettings): AppSettings {
     autoRightSidebarBehavior: Boolean(
       iface?.autoRightSidebarBehavior ?? DEFAULT_SETTINGS.interface!.autoRightSidebarBehavior
     ),
+  };
+
+  // Agents
+  const agents = (input as any)?.agents || {};
+  const overrides =
+    agents?.providerOverrides && typeof agents.providerOverrides === 'object'
+      ? agents.providerOverrides
+      : {};
+
+  const providerOverrides: Partial<Record<ProviderId, AgentProviderOverrideSettings>> = {};
+  for (const [providerId, providerOverride] of Object.entries(overrides)) {
+    if (!isValidProviderId(providerId)) continue;
+    if (!providerOverride || typeof providerOverride !== 'object') continue;
+
+    const autoApproveFlag =
+      typeof (providerOverride as any).autoApproveFlag === 'string'
+        ? String((providerOverride as any).autoApproveFlag).trim()
+        : undefined;
+    if (!autoApproveFlag) continue;
+    providerOverrides[providerId as ProviderId] = { autoApproveFlag };
+  }
+
+  providerOverrides.codex ??= {
+    autoApproveFlag: DEFAULT_SETTINGS.agents!.providerOverrides!.codex!.autoApproveFlag,
+  };
+
+  out.agents = {
+    providerOverrides,
   };
 
   return out;

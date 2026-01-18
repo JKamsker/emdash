@@ -102,6 +102,13 @@ declare global {
           interface?: {
             autoRightSidebarBehavior?: boolean;
           };
+          agents?: {
+            providerOverrides?: {
+              codex?: {
+                autoApproveFlag?: string;
+              };
+            };
+          };
         };
         error?: string;
       }>;
@@ -162,6 +169,13 @@ declare global {
           interface?: {
             autoRightSidebarBehavior?: boolean;
           };
+          agents?: {
+            providerOverrides?: {
+              codex?: {
+                autoApproveFlag?: string;
+              };
+            };
+          };
         }>
       ) => Promise<{
         success: boolean;
@@ -220,6 +234,13 @@ declare global {
           };
           interface?: {
             autoRightSidebarBehavior?: boolean;
+          };
+          agents?: {
+            providerOverrides?: {
+              codex?: {
+                autoApproveFlag?: string;
+              };
+            };
           };
         };
         error?: string;

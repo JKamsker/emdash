@@ -23,7 +23,7 @@ export const ProviderSelector: React.FC<ProviderSelectorProps> = ({
   className = '',
 }) => {
   return (
-    <div className={`relative block w-[12rem] min-w-0 ${className}`}>
+    <div className={`relative block w-full min-w-0 ${className}`}>
       <Select
         value={value}
         onValueChange={(v) => {

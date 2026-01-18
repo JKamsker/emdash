@@ -1,5 +1,6 @@
 import path from 'path';
 import { PROVIDERS, type ProviderDefinition } from '@shared/providers/registry';
+import type { AppSettings } from '../settings';
 
 export function detectProviderFromShellCommand(shellCommand: string | undefined): ProviderDefinition | undefined {
   if (!shellCommand) return undefined;
@@ -15,11 +16,12 @@ export function buildProviderCliArgs(
   provider: ProviderDefinition,
   options: {
     autoApprove?: boolean;
+    autoApproveFlagOverride?: string;
     initialPrompt?: string;
     skipResume?: boolean;
   }
 ): string[] {
-  const { autoApprove, initialPrompt, skipResume } = options;
+  const { autoApprove, autoApproveFlagOverride, initialPrompt, skipResume } = options;
   const cliArgs: string[] = [];
 
   if (provider.resumeFlag && !skipResume) {
@@ -30,8 +32,9 @@ export function buildProviderCliArgs(
     cliArgs.push(...provider.defaultArgs);
   }
 
-  if (autoApprove && provider.autoApproveFlag) {
-    cliArgs.push(provider.autoApproveFlag);
+  const autoApproveFlag = autoApproveFlagOverride ?? provider.autoApproveFlag;
+  if (autoApprove && autoApproveFlag) {
+    cliArgs.push(autoApproveFlag);
   }
 
   if (provider.initialPromptFlag !== undefined && initialPrompt?.trim()) {
@@ -44,3 +47,10 @@ export function buildProviderCliArgs(
   return cliArgs;
 }
 
+export function resolveProviderAutoApproveFlag(
+  provider: ProviderDefinition,
+  settings: AppSettings | undefined
+): string | undefined {
+  const override = settings?.agents?.providerOverrides?.[provider.id]?.autoApproveFlag;
+  return override ?? provider.autoApproveFlag;
+}
