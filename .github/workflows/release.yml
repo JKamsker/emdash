@@ -226,7 +226,8 @@ jobs:
 
   release-mac:
     # Run for tagged pushes (normal release) and for manual runs (dry run or ad-hoc release)
-    if: (startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch') && secrets.CERTIFICATE_P12 != '' && secrets.CERTIFICATE_PASSWORD != ''
+    # Note: job-level `if` does not support the `secrets` context, so we gate this job to the upstream repo.
+    if: github.repository == 'generalaction/emdash' && (startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch')
     runs-on: macos-latest
     permissions:
       contents: write
